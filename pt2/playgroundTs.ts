@@ -139,3 +139,125 @@ console.log(value);
 // - Você passa o objeto `comment`
 // - Especifica a chave "content"
 // - A função retorna o valor correspondente: "Conteúdo do comentário"
+
+
+
+// INDEXED ACCESS TYPES
+
+// Pra inferir o tipo da chave como o tipo do valor da chave do objeto
+// O primeiro generic define o tipo do meu objeto e o segundo define o tipo da minha chave
+// O tipo da minha chave ta sendo restringido pelos tipos das chaves que estão sendo recebidas pelo objeto
+//Estamos combinando essas duas interfaces através da manipulação de index type para conseguir tipar o retorno da função
+
+/* EXPLICANDO MELHOR:
+
+// tem 2 jeitos de buscar as propriedades de um objeto:
+// const jeitoA = comment2.likes; // Notação de ponto 
+// const jeitoB = comment2["likes"]; // Notação de colchetes
+
+Ambas as formas darão o mesmo resultado, mas a notação de colchetes permite usar 
+variáveis ou expressões para acessar a propriedade.
+
+Usando tipos de acesso indexado, você pode obter o tipo de uma propriedade a partir 
+de um tipo de objeto.
+
+Você usa generics para definir o tipo do seu objeto e o tipo da sua chave.
+
+O generic Key é restrito por keyof Type, o que significa que ele só pode ser uma das chaves do Type.
+
+Type é o tipo do objeto.
+
+Key é o tipo da chave, que deve ser uma das chaves de Type.
+
+Type[Key] é o tipo do valor correspondente à chave.
+
+Esta função pode ser usada para obter com segurança uma propriedade de um objeto, 
+com o tipo de retorno sendo inferido corretamente com base na chave fornecida.
+
+*/
+
+export const comment2: PostComment = {
+    content: "Conteúdo do comentário",
+    likes: 5,
+    user: vitor,
+  };
+  
+  // type ContentType = PostComment["likes"]; // Aqui o type ContentType seria do tipo da chave likes, ou seja 'number', 
+  //já que o objeto likes é tipado como number na interface PostComment
+  
+  function getProperty2<Type, Key extends keyof Type>(
+    value: Type,
+    key: Key
+  ): Type[Key] {
+    return value[key];
+  }
+  
+  const value2 = getProperty2(comment2, "likes");
+  
+  console.log('value2:',value2)
+
+/* ou seja:
+
+Uso de Type[Key]
+A combinação Type[Key] retorna o tipo do valor associado à chave. No exemplo, PostComment["likes"] é number.
+
+Segurança em tempo de compilação
+A função garante que:
+
+Você só pode passar chaves válidas.
+O retorno será do mesmo tipo do valor da chave especificada.
+
+*/
+
+
+
+//TYPEOF OPERATOR
+//Basicamente puxa os tipos das propriedades de algum outro objeto
+//Aqui a função getTextComponent recebe como segundo argumento uma das chaves do objeto lightMode
+//E essa chave tem o mesmo tipo da chave do lightmode
+
+const lightMode = {
+    primary: "#074C4E",
+    secondary: "#F86F2D",
+    success: "#4ABC86",
+    error: "#EA3838",
+    background: "#FFF"
+  };
+  
+type Colors = typeof lightMode;
+  
+// poderia passar os mesmos tipos do lightmode pro darkmode a partir do type Colors
+  const darkMode: Colors = {
+    primary: "#074C",
+    secondary: "#F86F",
+    success: "#4ABC",
+    error: "#EA38",
+    background: "#000"
+  };
+  console.log(darkMode.primary)
+  
+  function getTextComponentA(text: string, color: keyof Colors) {
+    // mapeamento
+  }
+  
+  console.log(getTextComponentA('aldjakdlsa', 'background'));
+
+  // OUTRA MANEIRA DE FAZER O MESMO:
+
+    // type Colors = typeof lightMode;
+  
+    const darkMode2: Colors = {
+        primary: "#074C4E",
+        secondary: "#F86F2D",
+        success: "#4ABC86",
+        error: "#EA3838",
+        background: "#000"
+      };
+      console.log(darkMode2.primary)
+      
+      function getTextComponentB(text: string, color: keyof typeof lightMode) {
+        // mapeamento
+      }
+      
+      console.log(getTextComponentB('aldjakdlsa', 'background'));
+  
